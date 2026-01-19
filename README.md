@@ -16,6 +16,17 @@
 
 # Formic is a very good library for handling forms in big projects
 
+-Form Validation
+-useRef Hook
+
+-For authentication we will be using google firebase
+# steps for Deployment
+-install firebase CLI - 'npm install-g firebase-tools'
+-firebase login='firebase login'
+-Initialize firebase - 'firebase init' , then select hoisting
+-Deploy command -- 'firebase deploy'
+
+
 
 
 
