@@ -1,15 +1,19 @@
+
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { LOGO } from "../utils/constants";
+import { LOGO, SUPPORTED_LANGUAGES } from "../utils/constants";
 import { auth } from "../utils/firebase";
 import { addUser, removeUser } from "../utils/userSlice";
+import { toggleGptSearchView } from "../utils/gptSlice";
+import { changeLanguage } from "../utils/configSlice";
 
 const Header = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector((store) => store.user);
+  const showGptSearch = useSelector((store) => store.gpt.showGptSearch);
   const handleSignOut = () => {
     signOut(auth)
       .then(() => {})
@@ -41,12 +45,38 @@ const Header = () => {
     return () => unsubscribe();
   }, []);
 
-  
+  const handleGptSearchClick = () => {
+    // Toggle GPT Search
+    dispatch(toggleGptSearchView());
+  };
+
+  const handleLanguageChange = (e) => {
+    dispatch(changeLanguage(e.target.value));
+  };
+
   return (
     <div className="absolute z-10 flex flex-col justify-between w-screen px-8 py-2 bg-gradient-to-b from-black md:flex-row">
       <img className="mx-auto w-44 md:mx-0" src={LOGO} alt="logo" />
       {user && (
         <div className="flex justify-between p-2">
+          {showGptSearch && (
+            <select 
+              className="p-2 m-2 text-white bg-gray-900"
+              onChange={handleLanguageChange}
+            >
+              {SUPPORTED_LANGUAGES.map((lang) => (
+                <option key={lang.identifier} value={lang.identifier}>
+                  {lang.name}
+                </option>
+              ))}
+            </select>
+          )}
+          <button
+            className="px-4 py-2 mx-4 my-2 text-white bg-purple-800 rounded-lg"
+            onClick={handleGptSearchClick}
+          >
+            {showGptSearch ? "Homepage" : "GPT Search"}
+          </button>
           <img
             className="hidden w-12 h-12 md:block"
             alt="usericon"
@@ -61,76 +91,3 @@ const Header = () => {
   );
 };
 export default Header;
-
-// import React, { useEffect } from "react";
-// import { onAuthStateChanged, signOut } from "firebase/auth";
-// import { auth } from "../utils/firebase";
-// import { useNavigate } from "react-router-dom";
-// import { useDispatch, useSelector } from "react-redux";
-// import { addUser, removeUser } from "../utils/userSlice";
-// import { LOGO } from "../utils/constants";
-
-// const Header = () => {
-//   const dispatch = useDispatch();
-//   const navigate = useNavigate();
-//   const user = useSelector((store) => store.user);
-
-//   const handleSignOOut = () => {
-//     signOut(auth)
-//       .then(() => {
-//         // Sign-out successful.
-//       })
-//       .catch((error) => {
-//         // An error happened.
-//         navigate("/error");
-//       });
-//   };
-//   useEffect(() => {
-//     const unsubscribe =  onAuthStateChanged(auth, (user) => {
-//       if (user) {
-//         // User is signed in, see docs for a list of available properties
-//         // https://firebase.google.com/docs/reference/js/auth.user
-
-//         const { uid, email, displayName, photoURl } = user;
-//         dispatch(
-//           addUser({
-//             uid: uid,
-//             email: email,
-//             displayName: displayName,
-//             photoURl: photoURl,
-//           }),
-//         );
-
-//         navigate("/browse");
-//         // ...
-//       } else {
-//         // User is signed out
-//         dispatch(removeUser());
-//         navigate("/");
-//       }
-//     });
-//     //Unsubscribe when component unmounts
-//     return () => unsubscribe();
-//   }, []);
-
-//   return (
-//     <div className="absolute z-10 flex justify-between w-screen px-8 py-2 bg-gradient-to-b from-black">
-//       <img
-//         className="w-44"
-//         src={LOGO}
-//         alt="logo"
-//       />
-
-//       {user && (
-//         <div className="flex p-2">
-//           <img className="w-12 h-12 " alt="usericon" src={user?.photoURL} />
-//           <button onClick={handleSignOOut} className="font-bold text-white">
-//             Sign Out
-//           </button>
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default Header;
